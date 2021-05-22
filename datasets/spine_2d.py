@@ -65,7 +65,7 @@ def build(image_set, args):
     TRANSFORMS = {
         "train": transforms.Compose([
                     RandomCrop(360),
-                    RandomRotation(15),
+                    # RandomRotation(15),
                     RandomHorizontalFlip(),
                     # TODO add noise
                     Resize(224),
