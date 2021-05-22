@@ -1,0 +1,1 @@
+docker run -v "/home/data/Diagnostikbilanz/Fertig 20190503":"/home/data/Diagnostikbilanz/Fertig 20190503" -v /home/vpippi/projects/spine-detr/spine_plot:/workspace/spine_plot -v /home/vpippi/projects/spine-detr/logs:/workspace/logs --gpus all -it spine-detr

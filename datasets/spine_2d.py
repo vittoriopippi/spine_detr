@@ -1,0 +1,88 @@
+import os
+import torch
+import pandas as pd
+from skimage import io, transform
+import numpy as np
+import matplotlib.pyplot as plt
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms, utils
+from pathlib import Path
+from .spine_transforms import *
+from PIL import Image
+
+class Spine2D(Dataset):
+
+    def __init__(self, csv_file, img_folder, transform=None):
+        self.all_vertebrae = pd.read_csv(csv_file)
+        self.patients = self.all_vertebrae['patient_id'].drop_duplicates()
+        self.img_folder = img_folder
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.patients)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        patient_id = self.patients.iloc[idx]
+        patient_vertebrae = self.all_vertebrae[self.all_vertebrae['patient_id'] == patient_id]
+
+        img_path = self.img_folder / str(patient_id) / patient_vertebrae.iloc[0]['filename']
+
+        import time
+        t0 = time.time()
+
+        # if os.path.exists('cache/' + img_path.name):
+        #     img_path = 'cache/' + img_path.name
+        #     image = io.imread(img_path)
+        # else:
+        #     image = io.imread(img_path)
+        #     io.imsave('cache/' + img_path.name, image, check_contrast=False)
+        image = io.imread(img_path)
+
+        # print(f'Loaded in {round(time.time() - t0, 3)} s "{patient_vertebrae.iloc[0]["filename"]}"')
+        image = np.interp(image, (image.min(), image.max()), (0, 255))
+        image = np.stack((image,)*3, axis=-1)
+        image = Image.fromarray(np.uint8(image))
+
+        vertebrae = torch.tensor(patient_vertebrae.iloc[:, -4:].values).float()
+
+        sample = {'image': image, 'vertebrae': vertebrae}
+
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+
+def build(image_set, args):
+    root = Path(args.coco_path)
+    assert root.exists(), f'provided 2D spine path {root} does not exist'
+    PATHS = {
+        "train": root / "csv_train.csv",
+        "val": root / "csv_test.csv",
+    }
+    TRANSFORMS = {
+        "train": transforms.Compose([
+                    RandomCrop(360),
+                    # RandomRotation(15),
+                    # RandomHorizontalFlip(),
+                    # TODO add noise
+                    Resize(224),
+                    ToTensor(),
+                    ScaleCenters(),
+                    Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ]),
+        "val": transforms.Compose([
+                    RandomCrop(360),
+                    # CenterCrop(360),
+                    Resize(224),
+                    ToTensor(),
+                    ScaleCenters(),
+                    Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ]),
+    }
+    ann_file = PATHS[image_set]
+    img_folder = Path(args.spine_folder)
+    dataset = Spine2D(ann_file, img_folder, transform=TRANSFORMS[image_set])
+    return dataset
