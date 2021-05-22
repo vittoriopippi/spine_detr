@@ -24,18 +24,19 @@ def plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag=
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    img = spine_to_pil(samples[0])
-    img = spine_plot_centers(img, outputs['pred_boxes'][0])
-    img = spine_plot_connection(img, targets[0][:,1:3][indices[0][1]], outputs['pred_boxes'][0][indices[0][0]])
-    img = spine_class(img, outputs['pred_logits'][0])
-    img.save(f'{folder}/{epoch:03d}_{i:03d}_{tag}.jpg')
-    writer.add_image(f'{tag}/all_points', F.to_tensor(img), global_step=step)
+    for d in range(len(samples)):
+        img = spine_to_pil(samples[d])
+        img = spine_plot_centers(img, outputs['pred_boxes'][d])
+        img = spine_plot_connection(img, targets[d][:,1:3][indices[d][1]], outputs['pred_boxes'][d][indices[d][0]])
+        img = spine_class(img, outputs['pred_logits'][d])
+        img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_all.jpg')
+        writer.add_image(f'{tag}/all_points', F.to_tensor(img), global_step=step + d)
 
-    img = spine_to_pil(samples[0])
-    img = spine_plot_centers(img, targets[0][:,1:3][indices[0][1]], color=(0, 255, 0))
-    img = spine_plot_centers(img, outputs['pred_boxes'][0], threshold=0.5, logits=outputs['pred_logits'][0])
-    img.save(f'{folder}/{epoch:03d}_{i:03d}_{tag}_out.jpg')
-    writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step)
+        img = spine_to_pil(samples[d])
+        img = spine_plot_centers(img, targets[d][:,1:3][indices[d][1]], color=(0, 255, 0))
+        img = spine_plot_centers(img, outputs['pred_boxes'][d], threshold=0.5, logits=outputs['pred_logits'][d])
+        img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_out.jpg')
+        writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step + d)
 
 def spine_evaluation(src_outputs, logits, src_targets, threshold=0.5, r=10):
     outputs, targets = torch.clone(src_outputs).detach(), torch.clone(src_targets).detach()
@@ -88,8 +89,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
         loss_dict, indices = criterion(outputs, targets)
 
-        if epoch % 50 == 0 or epoch == 299:
-            step = epoch * len(data_loader) + i
+        if epoch % 50 == 0 or epoch == (args.epochs - 1):
+            step = (epoch * len(data_loader) + i) * args.batch_size
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='train', folder=args.comment)
 
         for i in range(len(samples)):
@@ -178,8 +179,8 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
         loss_dict, indices = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
 
-        if epoch % 50 == 0 or epoch == 299:
-            step = epoch * len(data_loader) + i
+        if epoch % 50 == 0 or (args.epochs - 1):
+            step = (epoch * len(data_loader) + i) * args.batch_size
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='test', folder=args.comment)
 
         for i in range(len(samples)):
