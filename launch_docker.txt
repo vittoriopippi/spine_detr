@@ -1,1 +1,0 @@
-docker run -v "/home/data/Diagnostikbilanz/Fertig 20190503":"/home/data/Diagnostikbilanz/Fertig 20190503" --gpus all -it spine-detr
