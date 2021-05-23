@@ -30,13 +30,13 @@ def plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag=
         img = spine_plot_connection(img, targets[d][:,1:3][indices[d][1]], outputs['pred_boxes'][d][indices[d][0]])
         img = spine_class(img, outputs['pred_logits'][d])
         img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_all.jpg')
-        writer.add_image(f'{tag}/all_points', F.to_tensor(img), global_step=step + d)
+        # writer.add_image(f'{tag}/all_points', F.to_tensor(img), global_step=step + d)
 
         img = spine_to_pil(samples[d])
         img = spine_plot_centers(img, targets[d][:,1:3][indices[d][1]], color=(0, 255, 0))
         img = spine_plot_centers(img, outputs['pred_boxes'][d], threshold=0.5, logits=outputs['pred_logits'][d])
         img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_out.jpg')
-        writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step + d)
+        # writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step + d)
 
 def spine_evaluation(src_outputs, logits, src_targets, threshold=0.5, r=10):
     outputs, targets = torch.clone(src_outputs).detach(), torch.clone(src_targets).detach()
