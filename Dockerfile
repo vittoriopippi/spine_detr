@@ -1,11 +1,11 @@
 FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
 
-ARG USER_ID=1003
-ARG GROUP_ID=1003
-RUN echo "USER_ID=${USER_ID} GROUP_ID=${GROUP_ID}"
-RUN addgroup --gid ${GROUP_ID} user && adduser --disabled-password --gecos '' --uid ${USER_ID} --gid ${GROUP_ID} user && usermod -a -G root user
-USER user
-WORKDIR /home/user
+# ARG USER_ID=1003
+# ARG GROUP_ID=1003
+# RUN echo "USER_ID=${USER_ID} GROUP_ID=${GROUP_ID}"
+# RUN addgroup --gid ${GROUP_ID} user && adduser --disabled-password --gecos '' --uid ${USER_ID} --gid ${GROUP_ID} user && usermod -a -G root user
+# USER user
+# WORKDIR /home/user
 
 ENV DEBIAN_FRONTEND=noninteractive
 
