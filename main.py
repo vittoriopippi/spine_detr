@@ -25,7 +25,7 @@ def get_args_parser():
     parser.add_argument('--lr_backbone', default=1e-5, type=float)
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--weight_decay', default=1e-4, type=float)
-    parser.add_argument('--epochs', default=300, type=int)
+    parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--lr_drop', default=200, type=int)
     parser.add_argument('--comment', default=None, type=str)
     parser.add_argument('--clip_max_norm', default=0.1, type=float,
@@ -104,6 +104,11 @@ def get_args_parser():
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
+
+    # data augmentation
+    parser.add_argument('--rand_crop', default=360, type=int)
+    parser.add_argument('--rand_rot', default=0, type=int) # no rand rotation is applied
+    parser.add_argument('--rand_hflip', default=0.0, type=float) # no rand hflip is applied
     return parser
 
 

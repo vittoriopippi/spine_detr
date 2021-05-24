@@ -127,6 +127,9 @@ class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
 
 class RandomRotation(transforms.RandomRotation):
     def __call__(self, sample):
+        if self.degrees == 0:
+            return sample
+
         img, vertebrae = sample['image'], sample['vertebrae']
 
         fill = self.fill

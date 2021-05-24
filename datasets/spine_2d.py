@@ -64,9 +64,9 @@ def build(image_set, args):
     }
     TRANSFORMS = {
         "train": transforms.Compose([
-                    RandomCrop(360),
-                    # RandomRotation(15),
-                    RandomHorizontalFlip(),
+                    RandomCrop(args.rand_crop),
+                    RandomRotation(args.rand_rot),
+                    RandomHorizontalFlip(args.rand_hflip),
                     # TODO add noise
                     Resize(224),
                     ToTensor(),
@@ -74,8 +74,8 @@ def build(image_set, args):
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 ]),
         "val": transforms.Compose([
-                    RandomCrop(360),
-                    # CenterCrop(360),
+                    RandomCrop(args.rand_crop),
+                    # CenterCrop(args.rand_crop),
                     Resize(224),
                     ToTensor(),
                     ScaleCenters(),
