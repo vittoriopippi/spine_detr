@@ -179,7 +179,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
         loss_dict, indices = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
 
-        if epoch % 50 == 0 or (args.epochs - 1):
+        if epoch % 50 == 0 or epoch == (args.epochs - 1):
             step = (epoch * len(data_loader) + i) * args.batch_size
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='test', folder=args.comment)
 
