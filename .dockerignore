@@ -16,8 +16,6 @@ experiment-*
 not_tracked_dir/
 .vscode
 spine_plot/*
-fake_coco/*
-read_2d_img
 venv
 .github
 .circleci
