@@ -26,4 +26,4 @@ WORKDIR /home/user/workspace
 RUN chmod +x launch.sh
 RUN chown -R user /home/user
 
-# USER user
+USER user
