@@ -24,6 +24,6 @@ COPY . ./workspace
 WORKDIR /home/user/workspace
 
 RUN chmod +x launch.sh
-RUN chown user /home/user
+RUN chown -R user /home/user
 
 USER user
