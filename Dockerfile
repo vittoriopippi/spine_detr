@@ -6,7 +6,6 @@ RUN apt-get update -qq && \
     apt-get install -y git vim libgtk2.0-dev && \
     rm -rf /var/cache/apk/*
 
-
 ARG USER_ID=1003
 ARG GROUP_ID=1003
 RUN echo "USER_ID=${USER_ID} GROUP_ID=${GROUP_ID}"
@@ -22,6 +21,7 @@ COPY download_pretrain.py ./workspace/download_pretrain.py
 RUN python ./workspace/download_pretrain.py
 
 COPY . ./workspace
+WORKDIR /home/user/workspace
 
 RUN chmod +x launch.sh
 USER user
