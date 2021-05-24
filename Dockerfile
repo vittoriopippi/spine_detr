@@ -2,7 +2,8 @@ FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
 
 ARG USER_ID
 ARG GROUP_ID
-RUN addgroup --gid $GROUP_ID user && adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user && usermod -a -G root user
+RUN echo "USER_ID=${USER_ID} GROUP_ID=${GROUP_ID}"
+RUN addgroup --gid ${GROUP_ID} user && adduser --disabled-password --gecos '' --uid ${USER_ID} --gid ${GROUP_ID} user && usermod -a -G root user
 USER user
 WORKDIR /home/user
 
