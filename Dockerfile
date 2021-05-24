@@ -19,7 +19,7 @@ COPY requirements.txt ./workspace/requirements.txt
 RUN pip --no-cache-dir install -r ./workspace/requirements.txt
 
 COPY download_pretrain.py ./workspace/download_pretrain.py
-RUN python download_pretrain.py
+RUN python ./workspace/download_pretrain.py
 
 COPY . ./workspace
 
