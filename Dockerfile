@@ -7,6 +7,10 @@ FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
 # USER user
 # WORKDIR /home/user
 
+RUN useradd -ms /bin/bash newuser
+USER newuser
+WORKDIR /home/newuser
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -qq && \
