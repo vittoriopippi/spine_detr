@@ -15,12 +15,12 @@ WORKDIR /home/user
 
 RUN pip --no-cache-dir install Cython
 
-COPY requirements.txt /workspace/requirements.txt
-RUN pip --no-cache-dir install -r /workspace/requirements.txt
+COPY requirements.txt ./workspace/requirements.txt
+RUN pip --no-cache-dir install -r ./workspace/requirements.txt
 
-COPY download_pretrain.py /workspace/download_pretrain.py
+COPY download_pretrain.py ./workspace/download_pretrain.py
 RUN python download_pretrain.py
 
-COPY . /workspace
+COPY . ./workspace
 
-RUN chmod +x /workspace/launch.sh
+RUN chmod +x ./workspace/launch.sh
