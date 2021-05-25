@@ -117,5 +117,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\r')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\n')
 
