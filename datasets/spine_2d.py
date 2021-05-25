@@ -62,10 +62,18 @@ class Spine2D(Dataset):
 def build(image_set, args):
     root = Path(args.coco_path)
     assert root.exists(), f'provided 2D spine path {root} does not exist'
-    PATHS = {
-        "train": root / "csv_train.csv",
-        "val": root / "csv_test.csv",
-    }
+
+    if args.cross_val:
+        PATHS = {
+            "train": root / f"csv_train_{args.cross_val}.csv",
+            "val": root / f"csv_test_{args.cross_val}.csv",
+        }
+    else:
+        PATHS = {
+            "train": root / f"csv_train.csv",
+            "val": root / f"csv_test.csv",
+        }
+    
     TRANSFORMS = {
         "train": transforms.Compose([
                     RandomCrop(args.rand_crop),
