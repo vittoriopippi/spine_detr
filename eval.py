@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
             batch, windows, src_img = batch_gen(img_path, stride=args.stride)
 
-            print(len(batch))
+            print(len(batch), row['filename'])
             out = model(batch)
 
             window_size = args.rand_crop
