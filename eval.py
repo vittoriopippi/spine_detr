@@ -132,5 +132,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)} MEM Res: {torch.cuda.memory_reserved() / (2 ** 20)}{" " * 10}', end='\n')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)} MEM Res: {torch.cuda.memory_reserved() / (2 ** 30)} Gb{" " * 10}', end='\n')
 
