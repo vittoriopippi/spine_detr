@@ -86,6 +86,9 @@ if __name__ == '__main__':
             all_logits, all_centers = [], []
             for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size):
                 out = model(batch)
+                del batch
+                torch.cuda.empty_cache()
+                
                 all_logits.append(out['pred_logits'])
                 all_centers.append(out['pred_boxes'])
 
