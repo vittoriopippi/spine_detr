@@ -66,7 +66,7 @@ def batch_gen(img_path, stride=None, max_batch_size=32):
 
     if len(images) > 0:
         batch = torch.stack(images)
-        return batch, wh_list, image
+        yield batch, wh_list, image
 
     
     
@@ -88,6 +88,8 @@ if __name__ == '__main__':
                 out = model(batch)
                 all_logits.append(out['pred_logits'])
                 all_centers.append(out['pred_boxes'])
+
+                print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)}{" " * 10}', end='\r')
 
             all_logits = torch.cat(all_logits)
             all_centers = torch.cat(all_centers)
@@ -127,5 +129,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\r')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} {row["patient_id"]}{" " * 32}', end='\r')
 
