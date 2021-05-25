@@ -74,64 +74,65 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('DETR evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
 
-    for cval in range(4):
-        args.resume = args.resume.format(cval)
-        model = SpineDETR(args)
-        df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
-        df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
+    with torch.no_grad():
+        for cval in range(4):
+            args.resume = args.resume.format(cval)
+            model = SpineDETR(args)
+            df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
+            df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
 
-        for row_i, (index, row) in enumerate(df.iterrows()):
-            img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
+            for row_i, (index, row) in enumerate(df.iterrows()):
+                img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
-            all_logits, all_centers = [], []
-            for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size):
-                out = model(batch)
-                del batch
+                all_logits, all_centers = [], []
+                for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size):
+                    out = model(batch)
+                    del batch
+                    torch.cuda.empty_cache()
+
+                    all_logits.append(out['pred_logits'])
+                    all_centers.append(out['pred_boxes'])
+
+                    print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)}{" " * 10}', end='\r')
+
+                all_logits = torch.cat(all_logits)
+                all_centers = torch.cat(all_centers)
+
+                window_size = args.rand_crop
+                window_centers = torch.Tensor(windows).to(args.device)
+                window_centers += window_size // 2
+
+                out_centers = []
+                for i, (window, logits, centers) in enumerate(zip(windows, all_logits, all_centers)):
+                    centers = centers[logits.squeeze() > 0.5]
+                    centers = centers * window_size
+                    centers[:, 0] += window[0]
+                    centers[:, 1] += window[1]
+                    if centers.numel() > 0:
+                        dist = torch.cdist(centers, window_centers)
+                        min_idx = dist.argmin(1)
+                        correct_centers = centers[min_idx == i]
+                        out_centers.append(correct_centers)
+
+                out_centers = torch.cat(out_centers)
+                os.makedirs(f'{args.output_dir}/{row["patient_id"]}', exist_ok=True)
+
+                sorted_idx = torch.argsort(out_centers[:, 1])
+                out_centers = out_centers[sorted_idx]
+
+                out_dict = {}
+                for i, (x, y) in enumerate(out_centers):
+                    out_dict[str(i)] = [{'pos': [x.item(), y.item()]}]
+                with open(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.json', 'w') as f:
+                    json.dump(out_dict, f)
+
+                width, height = F._get_image_size(src_img)
+                out_centers[:, 0] /= width
+                out_centers[:, 1] /= height
+
+                out_image = spine_plot_centers(src_img, out_centers)
+                out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
+                
+                print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)} MEM Res: {torch.cuda.memory_reserved() / (2 ** 30):.02f} Gb{" " * 10}', end='\n')
                 torch.cuda.empty_cache()
-
-                all_logits.append(out['pred_logits'])
-                all_centers.append(out['pred_boxes'])
-
-                print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)}{" " * 10}', end='\r')
-
-            all_logits = torch.cat(all_logits)
-            all_centers = torch.cat(all_centers)
-
-            window_size = args.rand_crop
-            window_centers = torch.Tensor(windows).to(args.device)
-            window_centers += window_size // 2
-
-            out_centers = []
-            for i, (window, logits, centers) in enumerate(zip(windows, all_logits, all_centers)):
-                centers = centers[logits.squeeze() > 0.5]
-                centers = centers * window_size
-                centers[:, 0] += window[0]
-                centers[:, 1] += window[1]
-                if centers.numel() > 0:
-                    dist = torch.cdist(centers, window_centers)
-                    min_idx = dist.argmin(1)
-                    correct_centers = centers[min_idx == i]
-                    out_centers.append(correct_centers)
-
-            out_centers = torch.cat(out_centers)
-            os.makedirs(f'{args.output_dir}/{row["patient_id"]}', exist_ok=True)
-
-            sorted_idx = torch.argsort(out_centers[:, 1])
-            out_centers = out_centers[sorted_idx]
-
-            out_dict = {}
-            for i, (x, y) in enumerate(out_centers):
-                out_dict[str(i)] = [{'pos': [x.item(), y.item()]}]
-            with open(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.json', 'w') as f:
-                json.dump(out_dict, f)
-
-            width, height = F._get_image_size(src_img)
-            out_centers[:, 0] /= width
-            out_centers[:, 1] /= height
-
-            out_image = spine_plot_centers(src_img, out_centers)
-            out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
-            
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)} MEM Res: {torch.cuda.memory_reserved() / (2 ** 30):.02f} Gb{" " * 10}', end='\n')
-            torch.cuda.empty_cache()
 
