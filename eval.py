@@ -97,7 +97,7 @@ if __name__ == '__main__':
                     out_centers.append(correct_centers)
 
             out_centers = torch.cat(out_centers)
-            os.makedirs(f'output/{row["patient_id"]}', exist_ok=True)
+            os.makedirs(f'{args.output_dir}/{row["patient_id"]}', exist_ok=True)
 
             sorted_idx = torch.argsort(out_centers[:, 1])
             out_centers = out_centers[sorted_idx]
@@ -105,7 +105,7 @@ if __name__ == '__main__':
             out_dict = {}
             for i, (x, y) in enumerate(out_centers):
                 out_dict[str(i)] = [{'pos': [x.item(), y.item()]}]
-            with open(f'output/{row["patient_id"]}/{row["patient_id"]}.json', 'w') as f:
+            with open(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.json', 'w') as f:
                 json.dump(out_dict, f)
 
             width, height = F._get_image_size(src_img)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
             out_centers[:, 1] /= height
 
             out_image = spine_plot_centers(src_img, out_centers)
-            out_image.save(f'output/{row["patient_id"]}/{row["patient_id"]}.jpg')
+            out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
             print(f'  CVAL: {cval} progress: {row_i}/{len(df)}', end='\r')
 
