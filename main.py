@@ -110,6 +110,9 @@ def get_args_parser():
     parser.add_argument('--rand_crop', default=360, type=int)
     parser.add_argument('--rand_rot', default=0, type=int) # no rand rotation is applied
     parser.add_argument('--rand_hflip', default=0.0, type=float) # no rand hflip is applied
+
+    # evaluation
+    parser.add_argument('--stride', type=int)
     return parser
 
 

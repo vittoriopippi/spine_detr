@@ -76,7 +76,7 @@ if __name__ == '__main__':
         for row_i, (index, row) in enumerate(df.iterrows()):
             img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
-            batch, windows, src_img = batch_gen(img_path)
+            batch, windows, src_img = batch_gen(img_path, stride=args.stride)
 
             out = model(batch)
 
@@ -115,5 +115,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}', end='\r')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\r')
 
