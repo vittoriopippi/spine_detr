@@ -27,7 +27,7 @@ class SpineDETR:
         samples = samples.to(self.device)
         return self.model(samples)
 
-def batch_gen(img_path, stride=None):
+def batch_gen(img_path, stride=None, max_batch_size=32):
     image = io.imread(img_path)
     image = np.interp(image, (image.min(), image.max()), (0, 255))
     image = np.stack((image,)*3, axis=-1)
@@ -59,8 +59,14 @@ def batch_gen(img_path, stride=None):
         sample = transform(sample)
         images.append(sample['image'])
 
-    batch = torch.stack(images)
-    return batch, wh_list, image
+        if len(images) >= max_batch_size:
+            batch = torch.stack(images)
+            yield batch, wh_list, image
+            images = []
+
+    if len(images) > 0:
+        batch = torch.stack(images)
+        return batch, wh_list, image
 
     
     
@@ -77,23 +83,27 @@ if __name__ == '__main__':
         for row_i, (index, row) in enumerate(df.iterrows()):
             img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
-            batch, windows, src_img = batch_gen(img_path, stride=args.stride)
+            all_logits, all_centers = [], []
+            for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size):
+                out = model(batch)
+                all_logits.append(out['pred_logits'])
+                all_centers.append(out['pred_boxes'])
 
-            print(len(batch), row['filename'])
-            out = model(batch)
+            all_logits = torch.cat(all_logits)
+            all_centers = torch.cat(all_centers)
 
             window_size = args.rand_crop
-            w_centers = torch.Tensor(windows).to(args.device)
-            w_centers += window_size // 2
+            window_centers = torch.Tensor(windows).to(args.device)
+            window_centers += window_size // 2
 
             out_centers = []
-            for i, (window, logits, centers) in enumerate(zip(windows, out['pred_logits'], out['pred_boxes'])):
+            for i, (window, logits, centers) in enumerate(zip(windows, all_logits, all_centers)):
                 centers = centers[logits.squeeze() > 0.5]
                 centers = centers * window_size
                 centers[:, 0] += window[0]
                 centers[:, 1] += window[1]
                 if centers.numel() > 0:
-                    dist = torch.cdist(centers, w_centers)
+                    dist = torch.cdist(centers, window_centers)
                     min_idx = dist.argmin(1)
                     correct_centers = centers[min_idx == i]
                     out_centers.append(correct_centers)
@@ -117,5 +127,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\n')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}{" " * 10}', end='\r')
 
