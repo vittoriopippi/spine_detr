@@ -87,7 +87,31 @@ class CenterCrop(transforms.CenterCrop):
         vertebrae = vertebrae[correct_vertebrae]
 
         return {'image': cropped_img, 'vertebrae': vertebrae, 'info': sample['info']}
-    
+
+
+class FixedCrop:
+    def __init__(self, coords, size):
+        self.x, self.y = coords
+        self.size = size
+
+    def __call__(self, sample):
+        img, vertebrae = sample['image'], sample['vertebrae']
+
+        width, height = F._get_image_size(img)
+
+        top, left, h, w = self.y, self.x, self.size, self.size
+        cropped_img = F.crop(img, top, left, h, w)
+
+        vertebrae[:, 1] -= left 
+        vertebrae[:, 2] -= top
+
+        left_check = torch.logical_and(vertebrae[:, 1] < w, vertebrae[:, 1] >= 0) 
+        top_check = torch.logical_and(vertebrae[:, 2] < h, vertebrae[:, 2] >= 0) 
+        correct_vertebrae = torch.logical_and(top_check, left_check)
+        vertebrae = vertebrae[correct_vertebrae]
+
+        return {'image': cropped_img, 'vertebrae': vertebrae, 'info': sample['info']}
+
 
 class Resize(transforms.Resize):
     def forward(self, sample):
