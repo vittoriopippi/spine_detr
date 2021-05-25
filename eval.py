@@ -73,11 +73,13 @@ if __name__ == '__main__':
         model = SpineDETR(args)
         df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
         df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
+
         for row_i, (index, row) in enumerate(df.iterrows()):
             img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
             batch, windows, src_img = batch_gen(img_path, stride=args.stride)
 
+            print(len(batch))
             out = model(batch)
 
             window_size = args.rand_crop
