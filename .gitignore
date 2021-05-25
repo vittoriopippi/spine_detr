@@ -24,3 +24,4 @@ venv
 __pycache__
 logs/*
 d2
+output

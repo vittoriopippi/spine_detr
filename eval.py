@@ -8,6 +8,8 @@ import torch
 from torchvision.transforms import functional as F
 import argparse
 from util.spine_plot import *
+import pandas as pd
+import os
 
 class SpineDETR:
     def __init__(self, args):
@@ -64,31 +66,42 @@ def batch_gen(img_path, stride=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('DETR evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    model = SpineDETR(args)
 
-    batch, windows, src_img = batch_gen('//archive.ostfalia.de/I-ARTEMIS/Data/Diagnostikbilanz/Fertig 20190503/1001/1001_UKSH_KIEL_RADIOLOGIE_NEURORAD_KVP80_cExp129.399_PixSp0-1_20Transversals.tif')
+    for cval in range(4):
+        # args.resume = f'logs\\checkpoint0499_{cval}.pth'
+        model = SpineDETR(args)
+        df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
+        df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
+        for row_i, (index, row) in enumerate(df.iterrows()):
+            img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
-    out = model(batch)
+            batch, windows, src_img = batch_gen(img_path)
 
-    window_size = args.rand_crop
-    w_centers = torch.Tensor(windows).to(args.device)
-    w_centers += window_size // 2
+            out = model(batch)
 
-    out_centers = []
-    for i, (window, logits, centers) in enumerate(zip(windows, out['pred_logits'], out['pred_boxes'])):
-        centers = centers[logits.squeeze() > 0.5]
-        centers = centers * window_size
-        centers[:, 0] += window[0]
-        centers[:, 1] += window[1]
-        if centers.numel() > 0:
-            dist = torch.cdist(centers, w_centers)
-            min_idx = dist.argmin(1)
-            correct_centers = centers[min_idx == i]
-            out_centers.append(correct_centers)
+            window_size = args.rand_crop
+            w_centers = torch.Tensor(windows).to(args.device)
+            w_centers += window_size // 2
 
-    out_centers = torch.cat(out_centers)
-    width, height = F._get_image_size(src_img)
-    out_centers[:, 0] /= width
-    out_centers[:, 1] /= height
+            out_centers = []
+            for i, (window, logits, centers) in enumerate(zip(windows, out['pred_logits'], out['pred_boxes'])):
+                centers = centers[logits.squeeze() > 0.5]
+                centers = centers * window_size
+                centers[:, 0] += window[0]
+                centers[:, 1] += window[1]
+                if centers.numel() > 0:
+                    dist = torch.cdist(centers, w_centers)
+                    min_idx = dist.argmin(1)
+                    correct_centers = centers[min_idx == i]
+                    out_centers.append(correct_centers)
 
-    spine_plot_centers(src_img, out_centers)
+            out_centers = torch.cat(out_centers)
+            width, height = F._get_image_size(src_img)
+            out_centers[:, 0] /= width
+            out_centers[:, 1] /= height
+
+            os.makedirs(f'output/{row["patient_id"]}', exist_ok=True)
+            out_image = spine_plot_centers(src_img, out_centers)
+            out_image.save(f'output/{row["patient_id"]}/{row["patient_id"]}.jpg')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)}', end='\r')
+
