@@ -268,7 +268,8 @@ def get_sha():
 def collate_fn(batch):
     images = torch.stack([sample['image'] for sample in batch])
     vertebrae = [sample['vertebrae'] for sample in batch]
-    return (images, vertebrae)
+    info = [sample['info'] for sample in batch]
+    return (images, vertebrae, info)
 
 
 def _max_by_axis(the_list):

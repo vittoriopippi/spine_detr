@@ -38,7 +38,7 @@ def plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag=
         img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_out.jpg')
         # writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step + d)
 
-def spine_evaluation(src_outputs, logits, src_targets, threshold=0.5, r=10):
+def spine_evaluation(src_outputs, logits, src_targets, spacing, threshold=0.5, r=10):
     outputs, targets = torch.clone(src_outputs).detach(), torch.clone(src_targets).detach()
     outputs = outputs[logits.squeeze(-1) > threshold]
     C = torch.cdist(outputs, targets, p=2).cpu()
@@ -47,8 +47,7 @@ def spine_evaluation(src_outputs, logits, src_targets, threshold=0.5, r=10):
     dist = torch.cdist(outputs, targets, p=2).diag()
 
     dist *= 360 # which is the random crop size
-    per_pix_dist = 0.2929687786102323 # mm per pixel
-    dist *= per_pix_dist # actual distance in mm
+    dist *= spacing # actual distance in mm
 
     in_dist = dist[dist < r]
     out_dist = dist[dist >= r]
@@ -74,7 +73,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     FNs, FPs, TPs, AVGs, TAR = [], [], [], [], []
 
     # for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
-    for i, (samples, targets) in enumerate(data_loader):
+    for i, (samples, targets, info) in enumerate(data_loader):
         samples = samples.to(device)
         targets = [t.to(device) for t in targets]
 
@@ -94,7 +93,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='train', folder=args.comment)
 
         for i in range(len(samples)):
-            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3])
+            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3], info[i]['spacing'])
             FNs.append(FN)
             FPs.append(FP)
             TPs.append(TP)
@@ -171,7 +170,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
     FNs, FPs, TPs, AVGs, TAR = [], [], [], [], []
 
     # for samples, targets in metric_logger.log_every(data_loader, 10, header):
-    for i, (samples, targets) in enumerate(data_loader):
+    for i, (samples, targets, info) in enumerate(data_loader):
         samples = samples.to(device)
         targets = [t.to(device) for t in targets]
 
@@ -184,7 +183,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='test', folder=args.comment)
 
         for i in range(len(samples)):
-            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3])
+            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3], info[i]['spacing'])
             FNs.append(FN)
             FPs.append(FP)
             TPs.append(TP)
