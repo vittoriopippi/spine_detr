@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 out = model(batch)
                 del batch
                 torch.cuda.empty_cache()
-                
+
                 all_logits.append(out['pred_logits'])
                 all_centers.append(out['pred_boxes'])
 
@@ -132,5 +132,5 @@ if __name__ == '__main__':
             out_image = spine_plot_centers(src_img, out_centers)
             out_image.save(f'{args.output_dir}/{row["patient_id"]}/{row["patient_id"]}.jpg')
             
-            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} {row["patient_id"]}{" " * 32}', end='\r')
+            print(f'  CVAL: {cval} progress: {row_i}/{len(df)} id: {row["patient_id"]} windows# {len(all_logits)} MEM Res: {torch.cuda.memory_reserved() / (2 ** 20)}{" " * 10}', end='\n')
 
