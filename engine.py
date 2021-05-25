@@ -160,13 +160,6 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
     # coco_evaluator.coco_eval[iou_types[0]].params.iouThrs = [0, 0.1, 0.5, 0.75]
 
     panoptic_evaluator = None
-    if 'panoptic' in postprocessors.keys():
-        panoptic_evaluator = PanopticEvaluator(
-            data_loader.dataset.ann_file,
-            data_loader.dataset.ann_folder,
-            output_dir=os.path.join(output_dir, "panoptic_eval"),
-        )
-
     FNs, FPs, TPs, AVGs, TAR = [], [], [], [], []
 
     # for samples, targets in metric_logger.log_every(data_loader, 10, header):
