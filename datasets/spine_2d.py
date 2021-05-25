@@ -46,9 +46,13 @@ class Spine2D(Dataset):
         image = np.stack((image,)*3, axis=-1)
         image = Image.fromarray(np.uint8(image))
 
-        vertebrae = torch.tensor(patient_vertebrae.iloc[:, -4:].values).float()
+        vertebrae = torch.tensor(patient_vertebrae[['vertebrae_id', 'center_x', 'center_y', 'genant_score']].values).float()
 
-        sample = {'image': image, 'vertebrae': vertebrae}
+        info = {}
+        info['spacing'] = patient_vertebrae.iloc[0]['spacing']
+        info['patient_id'] = patient_id
+
+        sample = {'image': image, 'vertebrae': vertebrae, 'info': info}
 
         if self.transform:
             sample = self.transform(sample)

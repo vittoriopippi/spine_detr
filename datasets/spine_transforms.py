@@ -7,7 +7,7 @@ import numpy as np
 class ToTensor():
     def __call__(self, sample):
         image, vertebrae = sample['image'], sample['vertebrae']
-        return {'image': F.to_tensor(image), 'vertebrae': vertebrae}
+        return {'image': F.to_tensor(image), 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class RandomCrop(transforms.RandomCrop):
@@ -38,7 +38,7 @@ class RandomCrop(transforms.RandomCrop):
         correct_vertebrae = torch.logical_and(top_check, left_check)
         vertebrae = vertebrae[correct_vertebrae]
 
-        return {'image': cropped_img, 'vertebrae': vertebrae}
+        return {'image': cropped_img, 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 def center_crop(img, output_size):
@@ -86,7 +86,7 @@ class CenterCrop(transforms.CenterCrop):
         correct_vertebrae = torch.logical_and(top_check, left_check)
         vertebrae = vertebrae[correct_vertebrae]
 
-        return {'image': cropped_img, 'vertebrae': vertebrae}
+        return {'image': cropped_img, 'vertebrae': vertebrae, 'info': sample['info']}
     
 
 class Resize(transforms.Resize):
@@ -97,13 +97,13 @@ class Resize(transforms.Resize):
         vertebrae[:, 1] = (vertebrae[:, 1] / width) * self.size
         vertebrae[:, 2] = (vertebrae[:, 2] / height) * self.size
 
-        return {'image': F.resize(img, self.size, self.interpolation), 'vertebrae': vertebrae}
+        return {'image': F.resize(img, self.size, self.interpolation), 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class Normalize(transforms.Normalize):
     def forward(self, sample):
         img, vertebrae = sample['image'], sample['vertebrae']
-        return {'image': F.normalize(img, self.mean, self.std, self.inplace), 'vertebrae': vertebrae}
+        return {'image': F.normalize(img, self.mean, self.std, self.inplace), 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class ScaleCenters():
@@ -112,7 +112,7 @@ class ScaleCenters():
         c, h, w = img.shape
         assert h == w, 'Shape must be a square'
         vertebrae[:, 1:3] /= h
-        return {'image': img, 'vertebrae': vertebrae}
+        return {'image': img, 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
@@ -122,7 +122,7 @@ class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
             width, height = F._get_image_size(img)
             img = F.hflip(img)
             vertebrae[:, 1] = width - vertebrae[:, 1]
-        return {'image': img, 'vertebrae': vertebrae}
+        return {'image': img, 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class RandomRotation(transforms.RandomRotation):
@@ -149,7 +149,7 @@ class RandomRotation(transforms.RandomRotation):
         y_check = torch.logical_or(vertebrae[:, 2] < 0, vertebrae[:, 2] >= height)
         xy_check = torch.logical_or(x_check, y_check)
         
-        return {'image': img, 'vertebrae': vertebrae[torch.logical_not(xy_check)]}
+        return {'image': img, 'vertebrae': vertebrae[torch.logical_not(xy_check)], 'info': sample['info']}
 
     @staticmethod
     def rotate_coord(img, angle, coords):
