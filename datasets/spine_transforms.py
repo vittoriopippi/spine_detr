@@ -134,8 +134,8 @@ class ScaleCenters():
     def __call__(self, sample):
         img, vertebrae = sample['image'], sample['vertebrae']
         c, h, w = img.shape
-        assert h == w, 'Shape must be a square'
-        vertebrae[:, 1:3] /= h
+        vertebrae[:, 1] /= h
+        vertebrae[:, 2] /= w
         return {'image': img, 'vertebrae': vertebrae, 'info': sample['info']}
 
 
