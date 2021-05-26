@@ -117,7 +117,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
         loss_value = losses_reduced_scaled.item()
         losses_items.append(loss_value)
-        print(f"{epoch:03d}_{i:03d} loss_value: {loss_value:.04f} mean {mean(losses_items):.04f} loss_centers {loss_dict['loss_centers'].item():.04f} loss_bce {loss_dict['loss_bce'].item():.04f} loss_spine_l1 {loss_dict['loss_spine_l1'].item():.04f}")
+        print(f"{epoch:03d}_{i:03d} loss_value: {loss_value:.04f} mean {mean(losses_items):.04f} loss_centers {loss_dict['loss_centers'].item():.04f} loss_bce {loss_dict['loss_bce'].item():.04f} loss_spine_l1 {loss_dict['loss_spine_l1'].item():.04f} id: {info[0]['patient_id']}")
         if not math.isfinite(loss_value):
             print("Loss is {}, stopping training".format(loss_value))
             print(loss_dict_reduced)
