@@ -8,7 +8,7 @@ def spine_plot_centers(img, output, color=(255, 0, 0), threshold=None, logits=No
     assert isinstance(img, Image.Image)
     output = torch.clone(output)
     # img = img.convert('LA').convert('RGB')
-    output = _to_pixel(img, output)
+    output = to_pixel(img, output)
 
     if threshold is not None and logits is not None:
         output = output[logits.squeeze(-1) > threshold]
@@ -25,7 +25,7 @@ def spine_to_pil(src, to_grayscale=True):
     img = F.to_pil_image(torch.clone(src))
     return img.convert('LA').convert('RGB')
 
-def _to_pixel(img, points):
+def to_pixel(img, points):
     width, height = F._get_image_size(img)
     points[:, 0] *= width
     points[:, 1] *= height
@@ -36,8 +36,8 @@ def spine_plot_connection(img, targets, predicted):
     targets = torch.clone(targets)
     predicted = torch.clone(predicted)
 
-    targets = _to_pixel(img, targets)
-    predicted = _to_pixel(img, predicted)
+    targets = to_pixel(img, targets)
+    predicted = to_pixel(img, predicted)
 
     r = 3
     draw = ImageDraw.Draw(img)
