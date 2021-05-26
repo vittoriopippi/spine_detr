@@ -86,9 +86,9 @@ def build(image_set, args):
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 ]),
         "val": transforms.Compose([
-                    RandomCrop(args.rand_crop),
+                    RandomCrop(args.rand_crop) if args.rand_crop > 0 else FakeTransform(),
                     # CenterCrop(args.rand_crop),
-                    Resize(args.resize),
+                    Resize(args.resize) if args.resize > 0 else FakeTransform(),
                     ToTensor(),
                     ScaleCenters(),
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])

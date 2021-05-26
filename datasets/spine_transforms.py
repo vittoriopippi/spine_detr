@@ -123,19 +123,16 @@ class Resize(transforms.Resize):
         assert isinstance(self.size, int), 'Tuple not supported yet'
         img, vertebrae = sample['image'], sample['vertebrae']
         width, height = F._get_image_size(img)
-
-        if width > 0 and height > 0:
-            if width < height:
-                out_h = int(self.size * height / width)
-                out_w = self.size
-            else:
-                out_w = int(self.size * width / height)
-                out_h = self.size
-
-            vertebrae[:, 1] = (vertebrae[:, 1] / width) * out_w
-            vertebrae[:, 2] = (vertebrae[:, 2] / height) * out_h
+        
+        if width < height:
+            out_h = int(self.size * height / width)
+            out_w = self.size
         else:
-            print(f"[ERROR] in image {sample['info']['patient_id']}, width={width}, height={height}")
+            out_w = int(self.size * width / height)
+            out_h = self.size
+
+        vertebrae[:, 1] = (vertebrae[:, 1] / width) * out_w
+        vertebrae[:, 2] = (vertebrae[:, 2] / height) * out_h
 
         return {'image': F.resize(img, (out_h, out_w), self.interpolation), 'vertebrae': vertebrae, 'info': sample['info']}
 
