@@ -10,6 +10,11 @@ class ToTensor():
         return {'image': F.to_tensor(image), 'vertebrae': vertebrae, 'info': sample['info']}
 
 
+class FakeTransform():
+    def __call__(self, sample):
+        return sample
+
+
 class RandomCrop(transforms.RandomCrop):
     def forward(self, sample):
         img, vertebrae = sample['image'], sample['vertebrae']
@@ -134,8 +139,8 @@ class ScaleCenters():
     def __call__(self, sample):
         img, vertebrae = sample['image'], sample['vertebrae']
         c, h, w = img.shape
-        vertebrae[:, 1] /= h
-        vertebrae[:, 2] /= w
+        vertebrae[:, 1] /= w
+        vertebrae[:, 2] /= h
         return {'image': img, 'vertebrae': vertebrae, 'info': sample['info']}
 
 
