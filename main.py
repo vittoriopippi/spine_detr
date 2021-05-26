@@ -88,7 +88,7 @@ def get_args_parser():
     parser.add_argument('--spine_folder', type=str)
     parser.add_argument('--coco_panoptic_path', type=str)
     parser.add_argument('--remove_difficult', action='store_true')
-    parser.add_argument('--cross_val', type=int)
+    parser.add_argument('--cross_val', default=0, type=int)
 
     parser.add_argument('--output_dir', default='',
                         help='path where to save, empty for no saving')
@@ -108,6 +108,7 @@ def get_args_parser():
 
     # data augmentation
     parser.add_argument('--rand_crop', default=360, type=int)
+    parser.add_argument('--resize', default=224, type=int)
     parser.add_argument('--rand_rot', default=0, type=int) # no rand rotation is applied
     parser.add_argument('--rand_hflip', default=0.0, type=float) # no rand hflip is applied
 

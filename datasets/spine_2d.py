@@ -80,7 +80,7 @@ def build(image_set, args):
                     RandomRotation(args.rand_rot),
                     RandomHorizontalFlip(args.rand_hflip),
                     # TODO add noise
-                    Resize(224),
+                    Resize(args.resize),
                     ToTensor(),
                     ScaleCenters(),
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -88,7 +88,7 @@ def build(image_set, args):
         "val": transforms.Compose([
                     RandomCrop(args.rand_crop),
                     # CenterCrop(args.rand_crop),
-                    Resize(224),
+                    Resize(args.resize),
                     ToTensor(),
                     ScaleCenters(),
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
