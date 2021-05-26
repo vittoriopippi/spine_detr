@@ -123,10 +123,17 @@ class Resize(transforms.Resize):
         assert isinstance(self.size, int), 'Tuple not supported yet'
         img, vertebrae = sample['image'], sample['vertebrae']
         width, height = F._get_image_size(img)
-        vertebrae[:, 1] = (vertebrae[:, 1] / width) * self.size
-        vertebrae[:, 2] = (vertebrae[:, 2] / height) * self.size
+        if width < height:
+            out_h = int(self.size * height / width)
+            out_w = self.size
+        else:
+            out_w = int(self.size * width / height)
+            out_h = self.size
 
-        return {'image': F.resize(img, self.size, self.interpolation), 'vertebrae': vertebrae, 'info': sample['info']}
+        vertebrae[:, 1] = (vertebrae[:, 1] / width) * out_w
+        vertebrae[:, 2] = (vertebrae[:, 2] / height) * out_h
+
+        return {'image': F.resize(img, (out_h, out_w), self.interpolation), 'vertebrae': vertebrae, 'info': sample['info']}
 
 
 class Normalize(transforms.Normalize):
