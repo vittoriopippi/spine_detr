@@ -92,12 +92,12 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             step = (epoch * len(data_loader) + i) * args.batch_size
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='train', folder=args.comment)
 
-        for i in range(len(samples)):
-            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3], info[i]['spacing'], args)
+        for d in range(len(samples)):
+            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][d], outputs['pred_logits'][d], targets[d][:, 1:3], info[d]['spacing'], args)
             FNs.append(FN)
             FPs.append(FP)
             TPs.append(TP)
-            TAR.append(len(targets[i]))
+            TAR.append(len(targets[d]))
             AVGs.append(in_dist)
 
         weight_dict = criterion.weight_dict
@@ -105,7 +105,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
         not_used_keys = [k for k in loss_dict.keys() if k not in weight_dict.keys()]
         if len(not_used_keys) > 0 and i == 0:
-            print(f'[WARNING] these key are not used to calculate the loss: {not_used_keys}')
+            print(f'[WARNING] these keys are not used to calculate the loss: {not_used_keys}')
 
         # reduce losses over all GPUs for logging purposes
         loss_dict_reduced = utils.reduce_dict(loss_dict)

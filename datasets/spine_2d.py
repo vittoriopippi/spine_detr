@@ -76,11 +76,11 @@ def build(image_set, args):
     
     TRANSFORMS = {
         "train": transforms.Compose([
-                    RandomCrop(args.rand_crop),
-                    RandomRotation(args.rand_rot),
-                    RandomHorizontalFlip(args.rand_hflip),
+                    RandomCrop(args.rand_crop) if args.rand_crop > 0 else FakeTransform(),
+                    RandomRotation(args.rand_rot) if args.rand_rot > 0 else FakeTransform(),
+                    RandomHorizontalFlip(args.rand_hflip) if args.rand_hflip > 0 else FakeTransform(),
                     # TODO add noise
-                    Resize(args.resize),
+                    Resize(args.resize) if args.resize > 0 else FakeTransform(),
                     ToTensor(),
                     ScaleCenters(),
                     Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
