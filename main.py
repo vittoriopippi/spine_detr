@@ -283,10 +283,13 @@ if __name__ == '__main__':
             res = input('Do you want to keep logs? [y/n] ')
             if not res.lower().startswith('y'):
                 try:
-                    del_dir(f'logs/{args.comment}')
                     del_dir(f'spine_plot/{args.comment}')
+                    print('Deleted spine plots')
+                    del_dir(f'logs/{args.comment}')
+                    print('Deleted tensorboard logs')
                     checkpoints = [f for f in os.listdir(args.output_dir) if f.endswith(f'{args.comment}.pth')]
                     [os.remove(f'{args.output_dir}/{c}') for c in checkpoints]
+                    print('Deleted all checkpoints')
                     print('All logs generated has been deleted')
                 except Exception as e:
                     print(f'ERROR not able to remove all logs generated "{e}"')
