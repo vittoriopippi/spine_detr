@@ -4,6 +4,8 @@ import datetime
 import json
 import random
 import time
+import os
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -263,10 +265,28 @@ def main(args):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
 
+def del_dir(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('DETR training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    main(args)
+    try:
+        main(args)
+    except KeyboardInterrupt:
+        time.sleep(1)
+        if utils.is_main_process():
+            print()
+            res = input('Do you want to keep logs? [y/n] ')
+            if not res.lower().startswith('y'):
+                try:
+                    del_dir(f'logs/{args.comment}')
+                    del_dir(f'spine_plot/{args.comment}')
+                    checkpoints = [f for f in os.listdir(args.output_dir) if f.endswith(f'{args.comment}.pth')]
+                    [os.remove(f'{args.output_dir}/{c}') for c in checkpoints]
+                    print('All logs generated has been deleted')
+                except Exception as e:
+                    print(f'ERROR not able to remove all logs generated "{e}"')
