@@ -51,6 +51,7 @@ class Spine2D(Dataset):
         info = {}
         info['spacing'] = patient_vertebrae.iloc[0]['spacing']
         info['patient_id'] = patient_id
+        info['src_width'], info['src_height'] = F._get_image_size(image)
 
         sample = {'image': image, 'vertebrae': vertebrae, 'info': info}
 
