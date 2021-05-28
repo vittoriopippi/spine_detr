@@ -38,16 +38,26 @@ def plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag=
         img.save(f'{folder}/{epoch:03d}_{i:03d}_{d:02d}_{tag}_out.jpg')
         # writer.add_image(f'{tag}/out_points', F.to_tensor(img), global_step=step + d)
 
-def spine_evaluation(src_outputs, logits, src_targets, spacing, args, threshold=0.5, r=10):
+def spine_evaluation(sample, src_outputs, logits, src_targets, spacing, args, threshold=0.5, r=10):
     outputs, targets = torch.clone(src_outputs).detach(), torch.clone(src_targets).detach()
     outputs = outputs[logits.squeeze(-1) > threshold]
     C = torch.cdist(outputs, targets, p=2).cpu()
     idx_out, idx_tar = linear_sum_assignment(C)
     outputs, targets = outputs[idx_out], targets[idx_tar]
-    dist = torch.cdist(outputs, targets, p=2).diag()
 
-    dist *= args.rand_crop # which is the random crop size
-    dist *= spacing # actual distance in mm
+    # move to pixel
+    w, h = sample.shape[2], sample.shape[1]
+    targets[:, 0] *= w
+    targets[:, 1] *= h
+    outputs[:, 0] *= w
+    outputs[:, 1] *= h
+
+    # move to mm
+    targets *= spacing
+    outputs *= spacing
+
+    # calculate distance
+    dist = torch.cdist(outputs, targets, p=2).diag()
 
     in_dist = dist[dist < r]
     out_dist = dist[dist >= r]
@@ -93,7 +103,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='train', folder=args.comment)
 
         for d in range(len(samples)):
-            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][d], outputs['pred_logits'][d], targets[d][:, 1:3], info[d]['spacing'], args)
+            FN, FP, TP, in_dist = spine_evaluation(samples[0], outputs['pred_boxes'][d], outputs['pred_logits'][d], targets[d][:, 1:3], info[d]['spacing'], args)
             FNs.append(FN)
             FPs.append(FP)
             TPs.append(TP)
@@ -176,7 +186,7 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
             plot_images(writer, step, samples, outputs, targets, indices, epoch, i, tag='test', folder=args.comment)
 
         for i in range(len(samples)):
-            FN, FP, TP, in_dist = spine_evaluation(outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3], info[i]['spacing'], args)
+            FN, FP, TP, in_dist = spine_evaluation(samples[0], outputs['pred_boxes'][i], outputs['pred_logits'][i], targets[i][:, 1:3], info[i]['spacing'], args)
             FNs.append(FN)
             FPs.append(FP)
             TPs.append(TP)
