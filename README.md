@@ -11,7 +11,7 @@ Since our dataset contains only the vertebra centers, we decide to change the ne
 Using our internal dataset of 159 images we achieved these results with a 4 fold cross validation:
 
 | Cross Validation | Training set | Test set | TP | FN | FP | Avg error |
-| :------------: | :------------: | :------------: |
+| :------------: | :------------: | :------------: |:------------: | :------------: |:------------: | :------------: |
 | Dataset 0 | 119 | 40 | 96.44% | 3.56% | 1.86% | 2.909 mm |
 | Dataset 1 | 119 | 40 | 91.38% | 8.62% | 7.27% | 3.833 mm |
 | Dataset 2 | 119 | 40 | 91.75% | 8.25% | 6.59% | 3.479 mm |
