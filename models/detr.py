@@ -66,7 +66,7 @@ class DETR(nn.Module):
         assert mask is not None
         hs = self.transformer(self.input_proj(src), mask, self.query_embed.weight, pos[-1])[0]
 
-        outputs_class = self.class_embed(hs) # predicts the class
+        outputs_class = self.class_embed(hs).sigmoid() # predicts the class
         outputs_coord = self.bbox_embed(hs).sigmoid() # predicts the centers
         out = {'pred_logits': outputs_class[-1], 'pred_boxes': outputs_coord[-1]}
         if self.aux_loss:
@@ -144,13 +144,13 @@ class SetCriterion(nn.Module):
         target = torch.zeros_like(src_logits)
         target[idx] = 1
 
-        loss_bce = F.binary_cross_entropy(torch.sigmoid(src_logits), target, reduction='none')
+        loss_bce = F.binary_cross_entropy(src_logits, target, reduction='none')
         loss_bce = loss_bce.sum() / num_boxes
         losses = {'loss_bce': loss_bce}
 
         if log:
             # TODO this should probably be a separate loss, not hacked in this one here
-            src = torch.sigmoid(src_logits).round()
+            src = src_logits.round()
             res = (src - target) ** 2
             acc = 1 - (res.sum() / res.numel())
             acc *= 100.0
