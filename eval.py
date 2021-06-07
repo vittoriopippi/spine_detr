@@ -27,11 +27,13 @@ class SpineDETR:
         samples = samples.to(self.device)
         return self.model(samples)
 
-def batch_gen(img_path, stride=None, max_batch_size=32):
+def batch_gen(img_path, stride=None, max_batch_size=32, resize=224):
     image = io.imread(img_path)
     image = np.interp(image, (image.min(), image.max()), (0, 255))
     image = np.stack((image,)*3, axis=-1)
     image = Image.fromarray(np.uint8(image))
+
+    # TODO resize image to fixed short edge like 512
 
     window_size = args.rand_crop
     stride = window_size // 2 if stride is None else stride
@@ -49,7 +51,7 @@ def batch_gen(img_path, stride=None, max_batch_size=32):
     for x, y in wh_list:
         transform = transforms.Compose([
                         FixedCrop((x, y), window_size),
-                        Resize(224),
+                        Resize(resize),
                         ToTensor(),
                         ScaleCenters(),
                         Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -127,6 +129,10 @@ def tool_big(args):
 @torch.no_grad()
 def tool_batch(args):
     for cval in range(4):
+        if args.resume.format(cval) == args.resume:
+            if cval != args.cross_val:
+                continue
+
         args.resume = args.resume.format(cval)
         model = SpineDETR(args)
         df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
@@ -136,7 +142,7 @@ def tool_batch(args):
             img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
 
             all_logits, all_centers = [], []
-            for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size):
+            for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size, resize=args.resize):
                 out = model(batch)
 
                 all_logits.append(out['pred_logits'])
@@ -157,6 +163,7 @@ def tool_batch(args):
                 centers = centers * window_size
                 centers[:, 0] += window[0]
                 centers[:, 1] += window[1]
+                # out_centers.append(centers)
                 if centers.numel() > 0:
                     dist = torch.cdist(centers, window_centers)
                     min_idx = dist.argmin(1)
@@ -189,7 +196,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('DETR evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
 
-    tool_big(args)
-    # tool_batch(args)
+    # tool_big(args)
+    tool_batch(args)
         
 
