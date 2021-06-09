@@ -7,7 +7,7 @@ RUN apt-get update -qq && \
     rm -rf /var/cache/apk/*
 
 ARG USER_ID
-ARG GROUP_ID
+ARG GROUP_ID=1003
 RUN echo "USER_ID=${USER_ID} GROUP_ID=${GROUP_ID}"
 RUN addgroup --gid ${GROUP_ID} user && adduser --disabled-password --gecos '' --uid ${USER_ID} --gid ${GROUP_ID} user && usermod -a -G root user
 WORKDIR /home/user
