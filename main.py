@@ -109,10 +109,10 @@ def get_args_parser():
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     # data augmentation
-    parser.add_argument('--rand_crop', default=360, type=int)
-    parser.add_argument('--resize', default=224, type=int)
-    parser.add_argument('--rand_rot', default=0, type=int) # no rand rotation is applied
-    parser.add_argument('--rand_hflip', default=0.0, type=float) # no rand hflip is applied
+    parser.add_argument('--rand_crop', default=360, type=int, help='crop a square patch from the image with size rand_crop, if rand_crop <=0 is disabled')
+    parser.add_argument('--resize', default=224, type=int, help='resize the image to have the shorter length equal to the given value, if resize <=0 is disabled')
+    parser.add_argument('--rand_rot', default=0, type=int, help='degrees of freedom in random rotation, if rand_rot <= 0 is disabledees') # no rand rotation is applied
+    parser.add_argument('--rand_hflip', default=0.0, type=float, help='horiziontal flip probability, if rand_hflip <= 0 is disabled') # no rand hflip is applied
 
     # evaluation
     parser.add_argument('--stride', type=int)
