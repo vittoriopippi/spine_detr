@@ -1,2 +1,2 @@
 git pull
-docker build --build_arg USER_ID=$UID -t spine-detr . && ./launch_docker.sh
+docker build --build-arg USER_ID=$UID -t spine-detr . && ./launch_docker.sh
