@@ -11,6 +11,9 @@ class ToTensor():
 
 
 class FakeTransform():
+    """
+    Placeholder transformation that doesn't do anything.
+    """
     def __call__(self, sample):
         return sample
 
