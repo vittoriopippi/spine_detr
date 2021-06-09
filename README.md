@@ -45,12 +45,15 @@ Like DETR, during the loss computations, the best assignment between the predict
 The following losses are combined with a weighted sum. Each one of them is a replacement for the loss used in DETR.
 
 **[`loss_binary_labels`](https://github.com/vittoriopippi/ostfalia_detr/blob/d952a0e18ba7fc91c27e7332cec19e75fa1b7a3e/models/detr.py#L138) (weight 1)**
+
 Given the pairs, the [binary cross-entropy](https://pytorch.org/docs/stable/nn.functional.html#torch.nn.functional.binary_cross_entropy "binary cross-entropy") is used to calculate the loss between the predictions and the ground truth. This loss replaces the `loss_labels` function which uses the classic cross-entropy loss. 
 
 **[`loss_centers`](https://github.com/vittoriopippi/ostfalia_detr/blob/d952a0e18ba7fc91c27e7332cec19e75fa1b7a3e/models/detr.py#L196) (weight 2)**
+
 To compute the loss the [mean squared error](https://pytorch.org/docs/stable/nn.functional.html#torch.nn.functional.mse_loss " mean squared error") between the predictions and the centers is computed. This loss replaces the `loss_giou` function which calculates the Generalized Intersection Over Union between the bounding boxes predicted by the DETR and the ground truth. Since we don't have the bounding boxes anymore we used the MSE between the centers instead.
 
 **[`loss_spine_l1`](https://github.com/vittoriopippi/ostfalia_detr/blob/d952a0e18ba7fc91c27e7332cec19e75fa1b7a3e/models/detr.py#L209) (weight 5)**
+
 To compute the loss the [L1 loss](https://pytorch.org/docs/stable/nn.functional.html#torch.nn.functional.mse_loss "L1 loss") the predictions and the centers is computed. This function replaces the `loss_boxes` function. In that case, the two losses are very similar. Instead of applying the L1 loss over the four coordinates of the bounding boxes [cx, cy, h, w], the loss is applied only among the centers [cx, cy].
 
 ### Data augmentation
