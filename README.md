@@ -30,6 +30,106 @@ Where for each prediction we refer as:
 - **False Positive** if the network predicts a vertebra that is not assigned to any ground truth.
 - **Average Error** is the error calculated among all true positives.
 
+### Quickstart
+Move to your home directory and clone the GitHub repo there.
+```
+cd ~
+git clone https://github.com/vittoriopippi/spine_detr.git
+```
+Now you should have a directory called `spine_detr` inside your home folder.
+
+In your home folder create a folder called `dataset` with this structure:
+```
+dataset
+├───1001
+│    patient_image_1001.tif
+├───1002
+│    patient_image_1002.tif
+├───1003
+│    patient_image_1003.tif
+├───1004
+│    patient_image_1004.tif
+...
+├───annotations
+│    csv_train_0.csv
+│    csv_test_0.csv
+│    csv_train_1.csv
+│    csv_test_1.csv
+│    csv_train_2.csv
+│    csv_test_2.csv
+|	 ...
+```
+Each CSV annotation file needs to have this structure where each line represents a vertebra. In particular, the names of the columns have to be the same: (the following data is faked)
+```
+| patient_id | filename               | vertebrae_id | center_x | center_y | genant_score | spacing |
+| 1001       | patient_image_1001.tif | 20           | 200      | 600      | 0            | 0.30    |
+| 1001       | patient_image_1001.tif | 21           | 150      | 750      | 0            | 0.30    |
+| 1001       | patient_image_1001.tif | 22           | 120      | 800      | 1            | 0.30    |
+| 1001       | patient_image_1001.tif | 23           | 100      | 970      | 0            | 0.30    |
+...
+| 1002       | patient_image_1002.tif | 19           | 200      | 650      | 0            | 0.20    |
+| 1002       | patient_image_1002.tif | 20           | 150      | 700      | 2            | 0.20    |
+...
+| 1003       | patient_image_1003.tif | 24           | 130      | 850      | 1            | 0.25    |
+| 1003       | patient_image_1003.tif | 25           | 120      | 930      | 0            | 0.25    |
+...
+```
+Inside the `spine_detr` folder create two directories `spine_detr/spine_plot` and `spine_detr/logs`.
+
+```
+cd spine_detr
+mkdir spine_plot logs
+```
+
+Once the dataset has the correct structure you just need to build the docker container and then run it. First, you have to make the scripts executable and then run them.
+
+```
+cd ~/spine_detr
+chmod +x docker_build.sh
+chmod +x docker_run.sh
+./docker_build.sh
+./docker_run.sh "$HOME/dataset" "$HOME/spine_detr/spine_plot" "$HOME/spine_detr/logs"
+```
+
+Once the container is running to start training execute:
+
+```
+export CUDA_VISIBLE_DEVICES=0
+python3 main.py --dataset_file 2d_spine --spine_ann_2d "dataset/annotations" --spine_imgs_2d "dataset" --comment "quickstart" --output_dir logs
+```
+
+Once the training ended, inside the folders `spine_detr/spine_plot` and `spine_detr/logs` there should be the output files.
+
+Inside the `logs` folder, there are the network checkpoints and the tensorboard output.
+```
+logs
+├───quickstart
+│   └───1234567890.1234567
+|		 events.out.tfevents.1234567890.0987654321abc.10.0
+│    checkpoint0099_quickstart.pth
+│    checkpoint0199_quickstart.pth
+│    checkpoint0299_quickstart.pth
+│    checkpoint0399_quickstart.pth
+│    checkpoint0499_quickstart.pth
+│    checkpoint_quickstart.pth
+```
+
+Inside the `spine_plot` folder, there are the network outputs during training and test. There are two kinds of output for each image, the one ending with `_out` is the final output of the network, where all results below the threshold are excluded. All outputs which end with `_all` show all vertebra centers predicted by the network and which ones are assigned to the ground truth. On the right of these images, there is one square for each predicted vertebra. The square color represents the confidence of that result: 0 is red (no confidence) and 1 is green. 
+
+```
+spine_plot
+├───quickstart
+|	 000_000_00_test_all.jpg
+|	 000_000_00_test_out.jpg
+|	 000_000_00_train_all.jpg
+|	 000_000_00_train_out.jpg
+...
+|	 499_004_07_test_all.jpg
+|	 499_004_07_test_out.jpg
+|	 499_013_07_train_all.jpg
+|	 499_013_07_train_out.jpg
+```
+
 ### Architecture
 The original DETR architecture remains untouched, the only different parts are the FFNs (Fast Forward Networks), which are slightly changed to predict vertebrae centers and the confidence scores.
 
