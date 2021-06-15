@@ -25,7 +25,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser('Set transformer detector', add_help=False)
     parser.add_argument('--lr', default=1e-4, type=float)
     parser.add_argument('--lr_backbone', default=1e-5, type=float)
-    parser.add_argument('--batch_size', default=2, type=int)
+    parser.add_argument('--batch_size', default=8, type=int)
     parser.add_argument('--weight_decay', default=1e-4, type=float)
     parser.add_argument('--epochs', default=500, type=int)
     parser.add_argument('--lr_drop', default=200, type=int)
@@ -57,7 +57,7 @@ def get_args_parser():
                         help="Dropout applied in the transformer")
     parser.add_argument('--nheads', default=8, type=int,
                         help="Number of attention heads inside the transformer's attentions")
-    parser.add_argument('--num_queries', default=100, type=int,
+    parser.add_argument('--num_queries', default=15, type=int,
                         help="Number of query slots")
     parser.add_argument('--pre_norm', action='store_true')
 
@@ -110,9 +110,9 @@ def get_args_parser():
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     # data augmentation
-    parser.add_argument('--rand_crop', default=360, type=int, help='crop a square patch from the image with size rand_crop, if rand_crop <=0 is disabled')
-    parser.add_argument('--resize', default=224, type=int, help='resize the image to have the shorter length equal to the given value, if resize <=0 is disabled')
-    parser.add_argument('--rand_rot', default=0, type=int, help='degrees of freedom in random rotation, if rand_rot <= 0 is disabledees') # no rand rotation is applied
+    parser.add_argument('--rand_crop', default=480, type=int, help='crop a square patch from the image with size rand_crop, if rand_crop <=0 is disabled')
+    parser.add_argument('--resize', default=300, type=int, help='resize the image to have the shorter length equal to the given value, if resize <=0 is disabled')
+    parser.add_argument('--rand_rot', default=1, type=int, help='degrees of freedom in random rotation, if rand_rot <= 0 is disabledees') # no rand rotation is applied
     parser.add_argument('--rand_hflip', default=0.0, type=float, help='horiziontal flip probability, if rand_hflip <= 0 is disabled') # no rand hflip is applied
 
     # evaluation
