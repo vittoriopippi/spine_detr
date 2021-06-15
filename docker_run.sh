@@ -1,0 +1,1 @@
+docker run -v "$1":"/home/data/2d_dataset" -v "$2":"/home/user/workspace/spine_plot" -v "$3":"/home/user/workspace/logs" --gpus all -it spine-detr

@@ -109,6 +109,9 @@ map = {
     }
 ```
 ### Docker
+abbiamo usato docker
+script per lanciare docker
+cartelle collegate
 
 ### Train
 
