@@ -61,7 +61,7 @@ class Spine2D(Dataset):
         return sample
 
 def build(image_set, args):
-    root = Path(args.coco_path)
+    root = Path(args.2d_spine_ann)
     assert root.exists(), f'provided 2D spine path {root} does not exist'
 
     if args.cross_val:
