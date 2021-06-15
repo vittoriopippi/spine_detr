@@ -109,9 +109,21 @@ map = {
     }
 ```
 ### Docker
-abbiamo usato docker
-script per lanciare docker
-cartelle collegate
+To run the code on any machine without particular constraints, we have created a docker container.
+
+To build the container, just run the following line of code in the same directory of the Dockerfile.
+```bash
+docker build --build-arg USER_ID=$UID --build-arg GROUP_ID=$(id -g) -t spine-detr .
+```
+
+The `USER_ID` and `GROUP_ID` variables are used to create a user with the same `UID` and `GID` as the one who builds the container. In that way, all data created inside the container can be modified outside of it.
+
+To run the docker container, just run the following line of code.
+```bash
+docker run -v "/your/dataset/path":"/home/data/2d_dataset" -v "/where/to/save/plots":"/home/user/workspace/spine_plot" -v "/where/to/save/logs":"/home/user/workspace/logs" --gpus all -it spine-detr
+```
+
+For easier development, you can use scripts [`docker_build.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_build.sh") and [`docker_run.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_run.sh")
 
 ### Train
 
