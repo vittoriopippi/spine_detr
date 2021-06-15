@@ -99,7 +99,7 @@ def tool_big(args):
         df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
 
         for row_i, (index, row) in enumerate(df.iterrows()):
-            img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
+            img_path = args.2d_spine_images + f"{row['patient_id']}/{row['filename']}"
 
             batch, src_img = load_img(img_path)
             out = model(batch)
@@ -139,7 +139,7 @@ def tool_batch(args):
         df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
 
         for row_i, (index, row) in enumerate(df.iterrows()):
-            img_path = args.spine_folder + f"{row['patient_id']}/{row['filename']}"
+            img_path = args.2d_spine_images + f"{row['patient_id']}/{row['filename']}"
 
             all_logits, all_centers = [], []
             for batch, windows, src_img in batch_gen(img_path, stride=args.stride, max_batch_size=args.batch_size, resize=args.resize):

@@ -95,6 +95,6 @@ def build(image_set, args):
                 ]),
     }
     ann_file = PATHS[image_set]
-    img_folder = Path(args.spine_folder)
+    img_folder = Path(args.2d_spine_images)
     dataset = Spine2D(ann_file, img_folder, transform=TRANSFORMS[image_set])
     return dataset
