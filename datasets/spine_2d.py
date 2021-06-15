@@ -61,7 +61,7 @@ class Spine2D(Dataset):
         return sample
 
 def build(image_set, args):
-    root = Path(args.2d_spine_ann)
+    root = Path(args.spine_ann_2d)
     assert root.exists(), f'provided 2D spine path {root} does not exist'
 
     if args.cross_val:
@@ -95,6 +95,6 @@ def build(image_set, args):
                 ]),
     }
     ann_file = PATHS[image_set]
-    img_folder = Path(args.2d_spine_images)
+    img_folder = Path(args.spine_imgs_2d)
     dataset = Spine2D(ann_file, img_folder, transform=TRANSFORMS[image_set])
     return dataset
