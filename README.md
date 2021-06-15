@@ -32,7 +32,7 @@ Where for each prediction we refer as:
 
 ### Quickstart
 Move to your home directory and clone the GitHub repo there.
-```
+```bash
 cd ~
 git clone https://github.com/vittoriopippi/spine_detr.git
 ```
@@ -76,14 +76,14 @@ Each CSV annotation file needs to have this structure where each line represents
 ```
 Inside the `spine_detr` folder create two directories `spine_detr/spine_plot` and `spine_detr/logs`.
 
-```
+```bash
 cd spine_detr
 mkdir spine_plot logs
 ```
 
 Once the dataset has the correct structure you just need to build the docker container and then run it. First, you have to make the scripts executable and then run them.
 
-```
+```bash
 cd ~/spine_detr
 chmod +x docker_build.sh
 chmod +x docker_run.sh
@@ -93,7 +93,7 @@ chmod +x docker_run.sh
 
 Once the container is running to start training execute:
 
-```
+```bash
 export CUDA_VISIBLE_DEVICES=0
 python3 main.py --dataset_file 2d_spine --spine_ann_2d "dataset/annotations" --spine_imgs_2d "dataset" --comment "quickstart" --output_dir logs
 ```
