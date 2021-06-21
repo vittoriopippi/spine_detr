@@ -234,6 +234,8 @@ For easier development, you can use scripts [`docker_build.sh`](https://github.c
 ### Evaluation
 To evaluate the model, you can use the script "eval.py". What the script does is apply the model in a sliding window way on the whole image.
 
-<img src="https://github.com/vittoriopippi/spine_detr/raw/master/images/evaluation_sample.gif" width="300" style="display: block; margin: auto;">
+<p align="center">
+<img src="https://github.com/vittoriopippi/spine_detr/raw/master/images/evaluation_sample.gif" width="300">
+</p>
 
 Each window is responsible only for the vertebra predicted closer to its center. As you can see in the image below, some vertebrae are predicted by both windows, but only the centers closer to their own window center remains.
