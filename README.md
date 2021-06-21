@@ -130,6 +130,10 @@ spine_plot
 |	 499_013_07_train_out.jpg
 ```
 
+Sample all             |  sample out
+:-------------------------:|:-------------------------:
+![](https://github.com/vittoriopippi/spine_detr/blob/master/images/sample_all.jpg?raw=true)  |  ![](https://github.com/vittoriopippi/spine_detr/blob/master/images/sample_out.jpg?raw=true)
+
 ### Architecture
 The original DETR architecture remains untouched, the only different parts are the FFNs (Fast Forward Networks), which are slightly changed to predict vertebrae centers and the confidence scores.
 
