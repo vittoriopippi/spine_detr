@@ -129,13 +129,14 @@ def tool_big(args):
 @torch.no_grad()
 def tool_batch(args):
     for cval in range(4):
-        if args.resume.format(cval) == args.resume:
+        if args.resume.format(cval) == args.resume: # no cross validation is used
+            # skip all other datasets
             if cval != args.cross_val:
                 continue
 
         args.resume = args.resume.format(cval)
         model = SpineDETR(args)
-        df = pd.read_csv(f'fake_coco/csv_test_{cval}.csv')
+        df = pd.read_csv(f'{args.spine_ann_2d}/csv_test_{cval}.csv')
         df = df[['patient_id', 'cross_val', 'filename']].drop_duplicates()
 
         for row_i, (index, row) in enumerate(df.iterrows()):
