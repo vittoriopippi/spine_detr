@@ -227,15 +227,36 @@ To run the docker container, just run the following line of code.
 docker run -v "/your/dataset/path":"/home/data/2d_dataset" -v "/where/to/save/plots":"/home/user/workspace/spine_plot" -v "/where/to/save/logs":"/home/user/workspace/logs" --gpus all -it spine-detr
 ```
 
-For easier development, you can use scripts [`docker_build.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_build.sh") and [`docker_run.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_run.sh")
+For easier development, you can use scripts [`docker_build.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_build.sh) and [`docker_run.sh`](https://github.com/vittoriopippi/spine_detr/blob/master/docker_run.sh)
 
 ### Train
 
 ### Evaluation
-To evaluate the model, you can use the script "eval.py". What the script does is apply the model in a sliding window way on the whole image.
+To evaluate the model, you can use the script [`eval.py`](https://github.com/vittoriopippi/spine_detr/blob/master/eval.py). What the script does is apply the model in a sliding window way on the whole image as you can see in the animation below.
 
 <p align="center">
 <img src="https://github.com/vittoriopippi/spine_detr/raw/master/images/evaluation_sample.gif" width="300">
 </p>
 
-Each window is responsible only for the vertebra predicted closer to its center. As you can see in the image below, some vertebrae are predicted by both windows, but only the centers closer to their own window center remains.
+Each window is responsible only for the vertebra predicted closer to its center. In the image below, some vertebrae are predicted by both windows, but only the centers closer to their own window center remains.
+![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_two.png)  |  ![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_res.png)
+:-------------------------:|:-------------------------:
+Two windows from who are generated the respective centers | The final result
+
+Following that logic, each window is responsible only of a subarea of itself. 
+![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_windows.png)  |  ![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_respo.png)
+:-------------------------:|:-------------------------:
+Given the colored windows "green", "blue", "orange", and "red" (image on the left) their actual output fields are the one dashed areas on the right image. This because every other vertebra center predicted outside of the dashed region is closer to the other windows rather than its own. 
+
+To evaluate a model you have to run the [`eval.py`](https://github.com/vittoriopippi/spine_detr/blob/master/eval.py) script with the same arguments used during training:
+```bash
+python eval.py --dataset_file 2d_spine --spine_ann_2d "dataset/annotations" --spine_imgs_2d "dataset" --output_dir "logs/output" --resume "path/to/checkpoint"
+```
+If you have multiple checkpoints for different validation sets like:
+```
+checkpoint_val0.pth
+checkpoint_val1.pth
+checkpoint_val2.pth
+checkpoint_val3.pth
+```
+You can give as `resume` argument a path like `path/to/checkpoint_val{}.pth` and it will be formatted with all cross validation values.
