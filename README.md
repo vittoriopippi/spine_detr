@@ -130,7 +130,7 @@ spine_plot
 |	 499_013_07_train_out.jpg
 ```
 
-Sample all             |  sample out
+Sample `_all` output             |  Sample `_out` output 
 :-------------------------:|:-------------------------:
 ![](https://github.com/vittoriopippi/spine_detr/blob/master/images/sample_all.jpg?raw=true)  |  ![](https://github.com/vittoriopippi/spine_detr/blob/master/images/sample_out.jpg?raw=true)
 
