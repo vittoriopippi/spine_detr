@@ -246,6 +246,7 @@ Two windows from who are generated the respective centers | The final result
 Following that logic, each window is responsible only of a subarea of itself. 
 ![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_windows.png)  |  ![](https://github.com/vittoriopippi/spine_detr/raw/master/images/overlay_respo.png)
 :-------------------------:|:-------------------------:
+
 Given the colored windows "green", "blue", "orange", and "red" (image on the left) their actual output fields are the one dashed areas on the right image. This because every other vertebra center predicted outside of the dashed region is closer to the other windows rather than its own. 
 
 To evaluate a model you have to run the [`eval.py`](https://github.com/vittoriopippi/spine_detr/blob/master/eval.py) script with the same arguments used during training:
